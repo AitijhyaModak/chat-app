@@ -35,9 +35,12 @@ export default function ChatBox() {
   }
 
   useEffect(() => {
-    const pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY, {
-      cluster: "ap2",
-    });
+    const pusherClient = new PusherClient(
+      process.env.NEXT_PUBLIC_PUSHER_APP_KEY,
+      {
+        cluster: "ap2",
+      }
+    );
     pusherClient.subscribe(params.slug);
     pusherClient.bind("new-message", handleNewMessage);
 
