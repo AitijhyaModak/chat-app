@@ -3,6 +3,15 @@
 import { signOut } from "next-auth/react";
 
 export default function UserTray() {
+  async function logout() {
+    const { error } = await signOut({ redirect: false });
+    if (error) {
+      toast.error("Some error occured");
+    } else {
+      return navigateTo("/", { external: true });
+    }
+  }
+
   return (
     <div
       onClick={() => signOut({ callbackUrl: "https://am-chatapp.netlify.app" })}
