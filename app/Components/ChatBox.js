@@ -45,7 +45,6 @@ export default function ChatBox() {
       pusherClient.unbind_all();
       pusherClient.unsubscribe();
       pusherClient.unbind("new-message", handleNewMessage);
-      pusherClient.disconnect();
     };
   }, []);
 
