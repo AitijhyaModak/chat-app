@@ -6,7 +6,7 @@ export async function POST(req) {
   const newMessage = body.newMessage;
   const roomId = body.roomId;
 
-  pusherServer.trigger(roomId, "new-message", newMessage);
+  await pusherServer.trigger(roomId, "new-message", newMessage);
 
   return new NextResponse("Message sent", { status: 200 });
 }
