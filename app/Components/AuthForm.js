@@ -1,44 +1,155 @@
 "use client";
+import { useForm } from "react-hook-form";
 import { FaGoogle } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function AuthForm() {
   const [variant, setVariant] = useState("LOGIN");
+  const { register, handleSubmit, reset } = useForm();
+  const [fetching, setFetching] = useState(false);
+  const router = useRouter();
+  const session = useSession();
+
+  useEffect(() => {
+    if (session?.status === "authenticated") router.push("/home");
+  }, [session?.status]);
 
   return (
     <form className="p-6 bg-[#1e293b] rounded-lg flex flex-col gap-5">
       {variant === "REGISTER" ? (
-        <Input inputName="Name" type="text"></Input>
+        <Input
+          inputName="Username"
+          type="text"
+          register={register}
+          fetching={fetching}
+        ></Input>
       ) : null}
 
-      <Input inputName="Email" type="text"></Input>
-      <Input inputName="Password" type="password"></Input>
+      <Input
+        inputName="Email"
+        type="text"
+        register={register}
+        fetching={fetching}
+      ></Input>
+      <Input
+        inputName="Password"
+        type="password"
+        register={register}
+        fetching={fetching}
+      ></Input>
 
       {variant === "REGISTER" ? (
-        <Input inputName="Confirm Password" type="password"></Input>
+        <Input
+          inputName="ConfirmPassword"
+          type="password"
+          register={register}
+          fetching={fetching}
+        ></Input>
       ) : null}
 
-      <SubmitButton variant={variant}></SubmitButton>
+      <SubmitButton
+        reset={reset}
+        variant={variant}
+        handleSubmit={handleSubmit}
+        fetching={fetching}
+        setFetching={setFetching}
+      ></SubmitButton>
       <OrContinueWith></OrContinueWith>
-      <GoogleButton></GoogleButton>
+      <GoogleButton
+        setFetching={setFetching}
+        fetching={fetching}
+      ></GoogleButton>
       <ToggleText variant={variant} setVariant={setVariant}></ToggleText>
     </form>
   );
 }
 
-function Input({ type, inputName }) {
+function Input({ type, inputName, register, fetching }) {
   return (
     <input
       type={type}
-      className="h-10 p-2 px-4 bg-[#2F3949] rounded-lg outline-none focus:border-2 focus:border-cyan-600"
+      disabled={fetching}
+      className="disabled:cursor-not-allowed h-10 p-2 px-4 bg-[#2F3949] rounded-lg outline-none focus:border-2 focus:border-cyan-600 disabled:opacity-30"
       placeholder={inputName}
+      {...register(inputName)}
     />
   );
 }
 
-function SubmitButton({ variant }) {
+function SubmitButton({ variant, handleSubmit, setFetching, fetching, reset }) {
+  const router = useRouter();
+  async function onSubmitButtonClick(formData) {
+    if (variant === "REGISTER") {
+      if (
+        !formData.Username ||
+        !formData.Password ||
+        !formData.Email ||
+        !formData.ConfirmPassword
+      ) {
+        toast.error("Input fields cannot be empty");
+        return;
+      }
+
+      if (formData.Username.length < 3) {
+        toast.error("Username should have atleast 3 characters");
+        return;
+      }
+
+      if (formData.Password.length < 5) {
+        toast.error("Password should have atleast 5 characters");
+        return;
+      }
+
+      if (formData.ConfirmPassword !== formData.Password) {
+        toast.error("Re-entered password does not match");
+        return;
+      }
+
+      setFetching(true);
+      try {
+        await axios.post("/api/register", formData);
+        toast.success("Account created succesfully");
+        reset();
+      } catch (error) {
+        console.log(error.response.data);
+        toast.error(error.response.data);
+      }
+      setFetching(false);
+    } else {
+      if (!formData.Email || !formData.Password) {
+        toast.error("Credentials cannot be empty");
+        return;
+      }
+
+      setFetching(true);
+      try {
+        const res = await signIn("credentials", {
+          redirect: false,
+          ...formData,
+        });
+        console.log(res);
+        if (res && res.ok) {
+          toast.success("Logged In");
+          router.push("/home");
+        } else toast.error("Invalid Credentials");
+      } catch (error) {
+        console.log("SIGN IN ERROR");
+      }
+      setFetching(false);
+    }
+  }
+
   return (
-    <button className="border-2 border-cyan-600 h-10 rounded-lg mt-2 hover:border-cyan-700 hover:text-cyan-600">
+    <button
+      disabled={fetching}
+      onClick={handleSubmit(onSubmitButtonClick)}
+      className="disabled:cursor-not-allowed disabled:opacity-30 border-2 border-cyan-600 h-10 rounded-lg mt-2  active:bg-green-400"
+    >
       {variant === "REGISTER" ? "Sign Up" : "Sign In"}
     </button>
   );
@@ -54,9 +165,20 @@ function OrContinueWith() {
   );
 }
 
-function GoogleButton() {
+function GoogleButton({ fetching, setFetching }) {
+  async function googleSignIn(e) {
+    e.preventDefault();
+    setFetching(true);
+    await signIn("google", { redirect: false });
+    setFetching(false);
+  }
+
   return (
-    <button className="border-2 border-cyan-600 h-10 rounded-lg hover:border-cyan-700 hover:text-cyan-600 flex justify-center items-center gap-5">
+    <button
+      onClick={googleSignIn}
+      disabled={fetching}
+      className="disabled:opacity-35 disabled:cursor-not-allowed border-2 border-cyan-600 h-10 rounded-lg active:bg-green-400 flex justify-center items-center gap-5"
+    >
       <FaGoogle className="fill-cyan-500"></FaGoogle>
       <span>Google</span>
     </button>
