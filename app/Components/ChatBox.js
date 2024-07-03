@@ -8,12 +8,14 @@ import MessageList from "./MessageList";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import PusherClient from "pusher-js";
+import LoadingComponent from "./LoadingComponent";
 
 export default function ChatBox() {
   const params = useParams();
   const router = useRouter();
   const [content, setContent] = useState("");
   const session = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [messageList, setMessageList] = useState([]);
 
@@ -31,6 +33,7 @@ export default function ChatBox() {
   }, []);
 
   function handleNewMessage(newMessage) {
+    if (newMessage.username === session.data.user.username) return;
     setMessageList((prevMessageList) => [...prevMessageList, newMessage]);
   }
 
@@ -52,6 +55,7 @@ export default function ChatBox() {
   }, []);
 
   function onExit() {
+    setIsLoading(true);
     router.push("/home");
   }
 
@@ -65,6 +69,7 @@ export default function ChatBox() {
       username: session.data.user.username,
     };
     setContent("");
+    setMessageList((prevMessageList) => [...prevMessageList, newMessage]);
     try {
       await axios.post("/api/message/send", {
         newMessage,
@@ -97,6 +102,7 @@ export default function ChatBox() {
           Exit
         </button>
       </div>
+      <LoadingComponent isLoading={isLoading}></LoadingComponent>
       <div className="bg-[#0f172a] h-[75%]">
         <MessageList
           username={session?.data?.user?.username}
