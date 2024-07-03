@@ -184,7 +184,7 @@ function GoogleButton({ fetching, setFetching, setIsLoading }) {
     e.preventDefault();
     setFetching(true);
     setIsLoading(true);
-    await signIn("google", { redirect: false });
+    await signIn("google", { callbackUrl: "/home", redirect: true });
     setFetching(false);
   }
 
