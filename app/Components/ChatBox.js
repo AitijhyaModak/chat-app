@@ -64,13 +64,12 @@ export default function ChatBox() {
       content,
       username: session.data.user.username,
     };
-
+    setContent("");
     try {
       await axios.post("/api/message/send", {
         newMessage,
         roomId: params.slug,
       });
-      setContent("");
     } catch (err) {
       console.log(err);
     }

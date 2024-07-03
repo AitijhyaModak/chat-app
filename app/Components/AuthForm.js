@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import LoadingComponent from "./LoadingComponent";
 
 export default function AuthForm() {
   const [variant, setVariant] = useState("LOGIN");
@@ -14,6 +15,7 @@ export default function AuthForm() {
   const [fetching, setFetching] = useState(false);
   const router = useRouter();
   const session = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (session?.status === "authenticated") router.push("/home");
@@ -58,13 +60,17 @@ export default function AuthForm() {
         handleSubmit={handleSubmit}
         fetching={fetching}
         setFetching={setFetching}
+        setIsLoading={setIsLoading}
+        isLoading={isLoading}
       ></SubmitButton>
       <OrContinueWith></OrContinueWith>
       <GoogleButton
         setFetching={setFetching}
         fetching={fetching}
+        setIsLoading={setIsLoading}
       ></GoogleButton>
       <ToggleText variant={variant} setVariant={setVariant}></ToggleText>
+      <LoadingComponent isLoading={isLoading}></LoadingComponent>
     </form>
   );
 }
@@ -81,7 +87,14 @@ function Input({ type, inputName, register, fetching }) {
   );
 }
 
-function SubmitButton({ variant, handleSubmit, setFetching, fetching, reset }) {
+function SubmitButton({
+  variant,
+  handleSubmit,
+  setFetching,
+  fetching,
+  reset,
+  setIsLoading,
+}) {
   const router = useRouter();
   async function onSubmitButtonClick(formData) {
     if (variant === "REGISTER") {
@@ -135,6 +148,7 @@ function SubmitButton({ variant, handleSubmit, setFetching, fetching, reset }) {
         console.log(res);
         if (res && res.ok) {
           toast.success("Logged In");
+          setIsLoading(true);
           router.push("/home");
         } else toast.error("Invalid Credentials");
       } catch (error) {
@@ -165,10 +179,11 @@ function OrContinueWith() {
   );
 }
 
-function GoogleButton({ fetching, setFetching }) {
+function GoogleButton({ fetching, setFetching, setIsLoading }) {
   async function googleSignIn(e) {
     e.preventDefault();
     setFetching(true);
+    setIsLoading(true);
     await signIn("google", { redirect: false });
     setFetching(false);
   }

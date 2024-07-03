@@ -22,6 +22,9 @@ module.exports = {
           },
         },
       },
+      animation: {
+        "spin-fast": "spin .8s linear infinite",
+      },
     },
   },
   plugins: [],
