@@ -1,43 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { FaArrowDown } from "react-icons/fa";
-
 export default function MessageList({ messageList, username }) {
-  const messageListRef = useRef(null);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-
-  useEffect(() => {
-    if (messageListRef?.current) {
-      const isScroll =
-        messageListRef.current.scrollTop +
-          messageListRef.current.clientHeight +
-          130 <
-        messageListRef.current.scrollHeight;
-      console.log(isScroll);
-      if (!isScroll) {
-        messageListRef.current.scrollTo({
-          top: messageListRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-        setShowScrollButton(false);
-      } else setShowScrollButton(true);
-    }
-  }, [messageList]);
-
-  function handleScrollDown() {
-    setShowScrollButton(false);
-    messageListRef.current.scrollTo({
-      top: messageListRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }
-
   return (
-    <div
-      ref={messageListRef}
-      className="flex flex-col mt-8 h-full  overflow-hidden overflow-y-auto"
-    >
+    <div className="flex flex-col mt-8 h-full  overflow-hidden overflow-y-auto">
       {messageList.map((item, index) => (
         <Message
           sameAsBefore={
@@ -49,14 +14,6 @@ export default function MessageList({ messageList, username }) {
           content={item.content}
         ></Message>
       ))}
-      {showScrollButton && (
-        <button
-          onClick={handleScrollDown}
-          className="w-12 h-12 animate-pulse flex justify-center items-center rounded-full bg-green-500 absolute bottom-32 right-16"
-        >
-          <FaArrowDown size={20} color="black"></FaArrowDown>
-        </button>
-      )}
     </div>
   );
 }
