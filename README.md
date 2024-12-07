@@ -65,6 +65,7 @@ PUSHER_SECRET = pusher secret
 npm run dev
 ```
 ---
+
 ## 👨‍💻 How to Contribute
 We encourage developers of all skill levels to contribute to this project. Here's how you can get started:
 
@@ -81,6 +82,7 @@ git checkout -b feature-name
 - Try to follow the existing coding style and conventions.
 - Provide clear and concise commit messages.
 - Test your code before submitting a pull request.
+  
 ---
 
 ## ⭐ Acknowledgements
