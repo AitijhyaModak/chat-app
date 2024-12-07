@@ -1,9 +1,14 @@
-# AM ChatApp
+# ChatApp
 
-A real-time chat application where users can create accounts, sign in, create rooms, and chat with others. The app is implemented using **PusherJs** for real-time communication, and **Next.js** for building a server-side rendered application.
+## Welcome to the ChatApp! 🚀
+
+### NOTE: PULL REQUESTS ONLY FROM THE STUDENTS OF IIEST, SHIBPUR WILL BE ACCEPTED, IF YOU ARE NOT A STUDENT OF IIESTS, KINDLY IGNORE THIS REPOSITORY
+
+This is a real-time chat application where users can create accounts, sign in, create rooms, and chat with others. The app leverages cutting-edge technologies like PusherJS for real-time communication and Next.js for server-side rendering.
 
 **Live Preview:**  
 [https://am-chatapp.netlify.app](https://am-chatapp.netlify.app)
+
 
 
 ## 🚀 Features
@@ -28,7 +33,7 @@ A real-time chat application where users can create accounts, sign in, create ro
 - **Prisma**: For easy interaction with the **MongoDB** database, simplifying database management.
 - **MongoDB**: For storing user accounts, room data, and related information (except chat messages).
 - **PusherJS**: For real-time communication, enabling instant message delivery to all users in a room.
-
+---
 
 ## 📝 How to Run the Project Locally
 
@@ -43,7 +48,7 @@ cd chat-app
 npm install
 ```
 
-### 3. Set up Environment Variables as follows:
+### 3.Create a .env file as follows:
 ```bash
 GOOGLE_AUTH_CLIENTID = google auth client id
 GOOGLE_AUTH_CLIENTSECRET = google auth client secret
@@ -59,14 +64,24 @@ PUSHER_SECRET = pusher secret
 ```bash
 npm run dev
 ```
+---
+## 👨‍💻 How to Contribute
+We encourage developers of all skill levels to contribute to this project. Here's how you can get started:
 
-## 👨‍💻 Contributing
-
-I welcome contributions to improve the app! Here’s how you can get involved:
-
+- Check the Issues tab and Select a issue that interests you.
 - Fork the repository to your own GitHub account.
 - Clone your fork to your local machine.
-- Create a new branch for your changes (git checkout -b feature-name).
+- Create a new branch for your changes:
+```bash
+git checkout -b feature-name
+```  
 - Make the necessary changes or add a new feature.
-- Commit your changes and push to your forked repository.
+- Commit your changes and push them to your forked repository.
 - Create a Pull Request to the main repository with a detailed description of your changes.
+- Try to follow the existing coding style and conventions.
+- Provide clear and concise commit messages.
+- Test your code before submitting a pull request.
+---
+
+## ⭐ Acknowledgements
+Thank you for taking the time to contribute! Every contribution, no matter how small, helps improve this project. If you have any questions, feel free to open a new issue or reach out to the maintainers.
