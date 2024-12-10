@@ -69,19 +69,7 @@ npm run dev
 ## 👨‍💻 How to Contribute
 We encourage developers of all skill levels to contribute to this project. Here's how you can get started:
 
-- Check the Issues tab and Select a issue that interests you.
-- Fork the repository to your own GitHub account.
-- Clone your fork to your local machine.
-- Create a new branch for your changes:
-```bash
-git checkout -b feature-name
-```  
-- Make the necessary changes or add a new feature.
-- Commit your changes and push them to your forked repository.
-- Create a Pull Request to the main repository with a detailed description of your changes.
-- Try to follow the existing coding style and conventions.
-- Provide clear and concise commit messages.
-- Test your code before submitting a pull request.
+Checkout [CONTRIBUTING.md](/CONTRIBUTING.md) for contribution guidelines. 
   
 ---
 
