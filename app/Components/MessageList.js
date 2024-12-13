@@ -24,6 +24,7 @@ function Message({ content, senderUsername, rightAlign, sameAsBefore }) {
   className={`bg-yellow-200 mx-3 w-fit text-wrap animate-[fade_.2s_ease-in-out] p-3 rounded-lg max-w-[70%] ${
     rightAlign === true ? "self-end bg-yellow-500" : ""
   } ${sameAsBefore ? "mt-1" : "mt-3"}`}
+    style={{ minWidth: "150px" }} // minimum width for very short messages so that the timestamp doesn't get parallel to the message content
 >
       <div className="flex gap-2 items-center">
         <span
