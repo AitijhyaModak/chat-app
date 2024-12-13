@@ -67,6 +67,8 @@ export default function ChatBox() {
     const newMessage = {
       content,
       username: session.data.user.username,
+      // added a timestamp while sending the message
+      timestamp: new Date().toISOString(),
     };
     setContent("");
     setMessageList((prevMessageList) => [...prevMessageList, newMessage]);
