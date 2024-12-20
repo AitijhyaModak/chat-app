@@ -55,7 +55,7 @@ function Message({
 
       <div className="flex gap-2 items-center">
         <span
-          className={`font-bold sma:text-sm underline ${
+          className={`font-bold sma:text-sm md:text-base underline ${
             rightAlign === true ? "text-blue-700" : "text-stone-1000"
           } ${sameAsBefore ? "hidden" : ""}`}
         >
