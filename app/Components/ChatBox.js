@@ -1,6 +1,7 @@
 "use client";
 import { useParams } from "next/navigation";
 import { IoSend, IoCamera, IoCloseCircle } from "react-icons/io5";
+import { MdEmojiEmotions } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -10,6 +11,8 @@ import toast from "react-hot-toast";
 import PusherClient from "pusher-js";
 import LoadingComponent from "./LoadingComponent";
 import { FaCropSimple } from "react-icons/fa6";
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 
 export default function ChatBox() {
   const params = useParams();
@@ -17,7 +20,7 @@ export default function ChatBox() {
   const [content, setContent] = useState("");
   const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isEmojiPickOn,setEmojiPick] = useState(false);
   const [messageList, setMessageList] = useState([]);
 
   // added image state
@@ -139,6 +142,24 @@ export default function ChatBox() {
   // function to open and close image upload modal
   function openImageModal() {
     setIsModalOpen(true);
+  }
+  function emojiHandle(a)
+  {
+    //add selected emoji to body of text
+    //setEmojiPick(false);//uncomment to make emoji picker close after each emoji
+    setContent(content + a);
+  }
+  function handleEmojiClick()
+  {
+    //open/close emoji Picker
+    if(isEmojiPickOn)
+    {
+       setEmojiPick(false);
+    }
+    else
+    {
+      setEmojiPick(true);
+    }
   }
 
   function closeImageModal() {
@@ -287,7 +308,13 @@ export default function ChatBox() {
           </div>
         </div>
       )}
-
+      {/*emoji picker component */}
+      {isEmojiPickOn && 
+      (
+        <div className="absolute bottom-20 z-50">
+        <Picker data={data} onEmojiSelect={(val)=>{emojiHandle(val.native)}} onClickOutside={(a)=>{setEmojiPick(false)}}/>
+        </div>
+      )}
       {/* global LoadingComponent to avoid double loading rendering */}
       {isLoading && !isModalOpen && (
         <LoadingComponent isLoading={isLoading}></LoadingComponent>
@@ -299,6 +326,7 @@ export default function ChatBox() {
           messageList={messageList}
         ></MessageList>
       </div>
+
       <div className="py-7 flex items-center justify-between gap-4">
         <textarea
           value={content}
@@ -307,6 +335,11 @@ export default function ChatBox() {
           className="bg-[#1e293b] sm:text-md placeholder:text-gray-600 w-[95%] h-12 border-b-2 border-gray-600 focus:border-gray-300 text-xl text-wrap px-5 outline-none py-2"
           type="text"
         />
+        
+        <MdEmojiEmotions 
+        className="cursor-pointer sma:size-7 size-12 active:fill-green-400"
+        onClick={handleEmojiClick}
+        ></MdEmojiEmotions>
         {/* image upload button*/}
         <IoCamera
           className="cursor-pointer sma:size-7 size-12 active:fill-green-400"
