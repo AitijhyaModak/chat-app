@@ -58,6 +58,9 @@ NEXTAUTH_SECRET = next auth secret
 NEXTAUTH_URL = http://localhost:3000 
 PUSHER_APP_ID = pusher app id
 PUSHER_SECRET = pusher secret
+CLOUDINARY_CLOUD_NAME = cloudinary cloud name
+CLOUDINARY_API_KEY = cloudinary api key
+CLOUDINARY_API_SECRET = cloudinary api secret
 ```
 
 ### 4. Run the application
