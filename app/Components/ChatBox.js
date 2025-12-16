@@ -11,8 +11,8 @@ import toast from "react-hot-toast";
 import PusherClient from "pusher-js";
 import LoadingComponent from "./LoadingComponent";
 import { FaCropSimple } from "react-icons/fa6";
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 export default function ChatBox() {
   const params = useParams();
@@ -20,7 +20,7 @@ export default function ChatBox() {
   const [content, setContent] = useState("");
   const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
-  const [isEmojiPickOn,setEmojiPick] = useState(false);
+  const [isEmojiPickOn, setEmojiPick] = useState(false);
   const [messageList, setMessageList] = useState([]);
 
   // added image state
@@ -143,21 +143,16 @@ export default function ChatBox() {
   function openImageModal() {
     setIsModalOpen(true);
   }
-  function emojiHandle(a)
-  {
+  function emojiHandle(a) {
     //add selected emoji to body of text
     //setEmojiPick(false);//uncomment to make emoji picker close after each emoji
     setContent(content + a);
   }
-  function handleEmojiClick()
-  {
+  function handleEmojiClick() {
     //open/close emoji Picker
-    if(isEmojiPickOn)
-    {
-       setEmojiPick(false);
-    }
-    else
-    {
+    if (isEmojiPickOn) {
+      setEmojiPick(false);
+    } else {
       setEmojiPick(true);
     }
   }
@@ -223,11 +218,11 @@ export default function ChatBox() {
           </div>
         </div>
       )}
-      <div className=" bg-[#0f172a] h-[10%] flex items-center justify-between">
+      <div className=" bg-[#090d15] h-[10%] flex items-center justify-between px-10 py-8 rounded-xl shadow-xl">
         <div>
-          <h1 className="text-xl font-bold flex items-center sma:text-sm">
+          <h1 className="text-xl font-semibold flex items-center sma:text-sm">
             Chat Room
-            <span className="ml-2 text-sm font-thin bg-gray-900 px-4 sma:text-sm sma:hidden">
+            <span className="ml-4 text-sm font-thin bg-gray-900 px-4 py-4 rounded-md sma:text-sm sma:hidden">
               {params.slug}
             </span>
           </h1>
@@ -238,7 +233,7 @@ export default function ChatBox() {
 
         <button
           onClick={onExit}
-          className="bg-red-500 w-20 h-10 rounded-lg active:bg-red-700"
+          className="bg-gradient-to-r from-[#e52d27] via-[#b31217] to-[#e52d27] bg-[length:200%_auto] shadow-lg hover:bg-right transition-all duration-500 w-20 h-10 rounded-lg active:bg-red-700" // Added animation to the Exit button and improved the color by adding the color gradient..
         >
           Exit
         </button>
@@ -309,10 +304,17 @@ export default function ChatBox() {
         </div>
       )}
       {/*emoji picker component */}
-      {isEmojiPickOn && 
-      (
+      {isEmojiPickOn && (
         <div className="absolute bottom-20 z-50">
-        <Picker data={data} onEmojiSelect={(val)=>{emojiHandle(val.native)}} onClickOutside={(a)=>{setEmojiPick(false)}}/>
+          <Picker
+            data={data}
+            onEmojiSelect={(val) => {
+              emojiHandle(val.native);
+            }}
+            onClickOutside={(a) => {
+              setEmojiPick(false);
+            }}
+          />
         </div>
       )}
       {/* global LoadingComponent to avoid double loading rendering */}
@@ -331,14 +333,14 @@ export default function ChatBox() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="type your message here"
-          className="bg-[#1e293b] sm:text-md placeholder:text-gray-600 w-[95%] h-12 border-b-2 border-gray-600 focus:border-gray-300 text-xl text-wrap px-5 outline-none py-2"
+          placeholder="Type your message here"
+          className="bg-[#0a0f17] sm:text-md placeholder:text-gray-500 w-[95%] h-12 border-none border-gray-600 focus:border-gray-300 rounded-xl text-xl text-wrap px-5 outline-none py-2"
           type="text"
         />
-        
-        <MdEmojiEmotions 
-        className="cursor-pointer sma:size-7 size-12 active:fill-green-400"
-        onClick={handleEmojiClick}
+
+        <MdEmojiEmotions
+          className="cursor-pointer sma:size-7 size-12 active:fill-green-400"
+          onClick={handleEmojiClick}
         ></MdEmojiEmotions>
         {/* image upload button*/}
         <IoCamera
