@@ -13,6 +13,10 @@ import LoadingComponent from "./LoadingComponent";
 import { FaCropSimple } from "react-icons/fa6";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+// import sound related icons to toggle sound settings in chat ui
+import { IoVolumeHigh, IoVolumeMute } from "react-icons/io5";
+// useRef is used to store mutable values (audio element + window focus state)
+import { useRef } from "react";
 
 export default function ChatBox() {
   const params = useParams();
@@ -23,12 +27,68 @@ export default function ChatBox() {
   const [isEmojiPickOn, setEmojiPick] = useState(false);
   const [messageList, setMessageList] = useState([]);
 
+  // sound system state:
+  // enabled toggle, volume level, and settings menu visibility
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [volume, setVolume] = useState(0.5);
+  const [showSoundSettings, setShowSoundSettings] = useState(false);
+  const isPageVisible = useRef(true);
+
   // added image state
   const [image, setImage] = useState(null);
   const [caption, setCaption] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // new state for selected image to display onClick
+
+  // track page visibility to prevent sound notifications when tab is hidden or minimized
+  // uses page visibility API for reliable detection across browsers
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      isPageVisible.current = !document.hidden;
+      console.log("Page visible:", isPageVisible.current);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  // play notification sound using Web Audio API
+  // creates a simple two-tone "ding" sound programmatically
+  // only plays if sound is enabled and page is visible
+  const playSound = () => {
+    if (!soundEnabled || !isPageVisible.current) return;
+
+    // create simple beep sound on-demand
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+
+    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioContext.currentTime + 0.3
+    );
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+  };
+
+  // save the playSound function
+  const updateSoundSettings = (enabled, vol) => {
+    setSoundEnabled(enabled);
+    setVolume(vol);
+  };
 
   useEffect(() => {
     async function fetchRoomDetails() {
@@ -46,6 +106,9 @@ export default function ChatBox() {
   function handleNewMessage(newMessage) {
     if (newMessage.username === session.data.user.username) return;
     setMessageList((prevMessageList) => [...prevMessageList, newMessage]);
+
+    // play sound for incoming messages
+    playSound();
   }
 
   useEffect(() => {
@@ -202,6 +265,72 @@ export default function ChatBox() {
 
   return (
     <div className="w-full h-full  bg-[#0f172a] p-7 rounded-lg relative">
+      {/* sound settings dropdown */}
+      {showSoundSettings && (
+        <div className="absolute top-20 right-10 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-4 z-50">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white text-sm">Sound Settings</h3>
+            <button
+              onClick={() => setShowSoundSettings(false)}
+              className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* toggle sound */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm text-gray-300">Message Sounds</label>
+              <button
+                onClick={() => updateSoundSettings(!soundEnabled, volume)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  soundEnabled ? "bg-blue-500" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    soundEnabled ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* volume slider */}
+            {soundEnabled && (
+              <div>
+                <label className="text-sm text-gray-300 mb-2 block">
+                  Volume: {Math.round(volume * 100)}%
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={volume}
+                  onChange={(e) =>
+                    updateSoundSettings(
+                      soundEnabled,
+                      parseFloat(e.target.value)
+                    )
+                  }
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                />
+              </div>
+            )}
+
+            {/* test sound button */}
+            <button
+              onClick={playSound}
+              disabled={!soundEnabled}
+              className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white py-2 rounded-lg text-sm transition-colors"
+            >
+              Test Sound
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* open the image in full screen */}
       {selectedImage && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
@@ -231,12 +360,28 @@ export default function ChatBox() {
           </span>
         </div>
 
-        <button
-          onClick={onExit}
-          className="bg-gradient-to-r from-[#e52d27] via-[#b31217] to-[#e52d27] bg-[length:200%_auto] shadow-lg hover:bg-right transition-all duration-500 w-20 h-10 rounded-lg active:bg-red-700" // Added animation to the Exit button and improved the color by adding the color gradient..
-        >
-          Exit
-        </button>
+        {/* header action buttons: sound toggle opens settings dropdown, exit button leaves chat */}
+        <div className="flex items-center gap-4">
+          {/* sound toggle button */}
+          <button
+            onClick={() => setShowSoundSettings(!showSoundSettings)}
+            className="p-2 rounded-lg hover:bg-gray-800 transition-colors"
+            title="Sound Settings"
+          >
+            {soundEnabled ? (
+              <IoVolumeHigh className="w-6 h-6 text-gray-300" />
+            ) : (
+              <IoVolumeMute className="w-6 h-6 text-gray-500" />
+            )}
+          </button>
+          {/* exit button */}
+          <button
+            onClick={onExit}
+            className="bg-gradient-to-r from-[#e52d27] via-[#b31217] to-[#e52d27] bg-[length:200%_auto] shadow-lg hover:bg-right transition-all duration-500 w-20 h-10 rounded-lg active:bg-red-700" // Added animation to the Exit button and improved the color by adding the color gradient..
+          >
+            Exit
+          </button>
+        </div>
       </div>
 
       {/* image upload modal component */}
