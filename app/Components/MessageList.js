@@ -52,7 +52,7 @@ function Message({
     >
       <div className="flex gap-2 items-center">
         <span
-          className={`font-bold sma:text-sm underline ${
+          className={`font-semibold text-base sma:text-sm underline ${
             rightAlign === true
               ? "text-[#828489]"
               : /* Changed the color of the user name*/ "text-stone-1000"
