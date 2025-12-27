@@ -2,6 +2,7 @@
 import { useParams } from "next/navigation";
 import { IoSend, IoCamera, IoCloseCircle } from "react-icons/io5";
 import { MdEmojiEmotions } from "react-icons/md";
+import { FaCopy } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -263,6 +264,11 @@ export default function ChatBox() {
     }
   }
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(params.slug);
+    toast.success("Room ID copied!");
+  };
+
   return (
     <div className="w-full h-full  bg-[#0f172a] p-7 rounded-lg relative">
       {/* sound settings dropdown */}
@@ -351,12 +357,22 @@ export default function ChatBox() {
         <div>
           <h1 className="text-xl font-semibold flex items-center sma:text-sm">
             Chat Room
-            <span className="ml-4 text-sm font-thin bg-gray-900 px-4 py-4 rounded-md sma:text-sm sma:hidden">
+            <span className="ml-4 text-sm font-thin bg-gray-900 px-4 py-4 rounded-md sma:text-sm sma:hidden flex items-center gap-3">
               {params.slug}
+              <FaCopy
+                className="cursor-pointer hover:text-blue-500 transition-colors"
+                onClick={copyToClipboard}
+                title="Copy Room ID"
+              />
             </span>
           </h1>
-          <span className="hidden text-sm font-thin bg-gray-900 px-2 mr-4 sma:inline">
+          <span className="hidden text-sm font-thin bg-gray-900 px-2 mr-4 sma:flex items-center gap-2">
             {params.slug}
+            <FaCopy
+              className="cursor-pointer hover:text-blue-500 transition-colors"
+              onClick={copyToClipboard}
+              title="Copy Room ID"
+            />
           </span>
         </div>
 
