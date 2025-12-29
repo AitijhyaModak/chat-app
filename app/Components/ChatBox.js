@@ -26,6 +26,13 @@ export default function ChatBox() {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmojiPickOn, setEmojiPick] = useState(false);
   const [messageList, setMessageList] = useState([]);
+  const [someoneTyping, setSomeoneTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState("");
+
+
+  // typing indicator refs
+  const isTypingRef = useRef(false);
+  const typingTimeoutRef = useRef(null);
 
   // sound system state:
   // enabled toggle, volume level, and settings menu visibility
@@ -123,6 +130,8 @@ export default function ChatBox() {
     pusherClient.bind("new-message", handleNewMessage);
     // binded new-image event listener
     pusherClient.bind("new-image", handleNewImageMessage);
+    pusherClient.bind("typing-event", handleTypingEvent);
+
 
     return () => {
       pusherClient.unbind_all();
@@ -219,6 +228,61 @@ export default function ChatBox() {
       setEmojiPick(true);
     }
   }
+
+    // emit typing event to backend
+  const emitTypingEvent = async (type) => {
+    try {
+      await fetch("/api/message/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roomId: params.slug,
+          username: session?.data?.user?.username,
+          type, // "start" | "stop"
+        }),
+      });
+    } catch (err) {
+      console.error("Typing emit failed", err);
+    }
+  };
+
+  // Emits typing start/stop events using debounce to avoid spam
+  const handleTyping = (value) => {
+  setContent(value);
+
+  if (!isTypingRef.current) {
+    isTypingRef.current = true;
+    emitTypingEvent("start");
+  }
+
+  if (typingTimeoutRef.current) {
+    clearTimeout(typingTimeoutRef.current);
+  }
+
+  typingTimeoutRef.current = setTimeout(() => {
+    isTypingRef.current = false;
+    emitTypingEvent("stop");
+  }, 2000);
+  };
+
+  // Handles typing events from other users (ignores current user)
+  const handleTypingEvent = (data) => {
+  if (!data) return;
+
+  // DO NOT show typing indicator for yourself
+  if (data.username === session?.data?.user?.username) return;
+
+  if (data.type === "start") {
+    setTypingUser(data.username || "Someone");
+    setSomeoneTyping(true);
+  }
+
+  if (data.type === "stop") {
+    setSomeoneTyping(false);
+    setTypingUser("");
+  }
+};
+
 
   function closeImageModal() {
     if (imagePreview) URL.revokeObjectURL(imagePreview);
@@ -475,9 +539,14 @@ export default function ChatBox() {
       </div>
 
       <div className="py-7 flex items-center justify-between gap-4">
+         {someoneTyping && (
+         <div className="text-sm text-gray-400 px-4 pb-1">
+         {typingUser} is typing...
+         </div>
+         )}
         <textarea
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => handleTyping(e.target.value)}
           placeholder="Type your message here"
           className="bg-[#0a0f17] sm:text-md placeholder:text-gray-500 w-[95%] h-12 border-none border-gray-600 focus:border-gray-300 rounded-xl text-xl text-wrap px-5 outline-none py-2"
           type="text"
